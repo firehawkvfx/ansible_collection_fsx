@@ -1,0 +1,81 @@
+---
+# tasks file for fsx_packages
+
+- name: Collect some facts only for ansible_distribution
+  setup:
+    gather_subset:
+      - '!all'
+      - 'min'
+  tags:
+  - always
+
+# - name: get key - centos
+#   get_url:
+#     url: https://fsx-lustre-client-repo-public-keys.s3.amazonaws.com/fsx-rpm-public-key.asc
+#     dest: /tmp/fsx-rpm-public-key.asc
+#   when: not skip_packages and ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' )
+
+- rpm_key:
+    state: present
+    key: https://fsx-lustre-client-repo-public-keys.s3.amazonaws.com/fsx-rpm-public-key.asc
+  when: not skip_packages and ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' )
+
+- name: download url
+  get_url:
+    url: https://fsx-lustre-client-repo.s3.amazonaws.com/el/7/fsx-lustre-client.repo
+    dest: /etc/yum.repos.d/aws-fsx.repo
+    mode: '0644'
+  when: not skip_packages and ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' )
+  vars:
+    ansible_python_interpreter: "{{ package_python_interpreter }}"
+
+# - name: Add fsx lustre repo # couldn't get this to work because the .xml fle isn't present
+#   yum_repository:
+#     name: aws-fsx
+#     file: fsx-lustre-client
+#     description: FSx for lustre repository  
+#     baseurl: https://fsx-lustre-client-repo.s3.amazonaws.com/el/7
+#   when: not skip_packages and ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' )
+
+- name: Install Lustre packages - centos
+  package:
+    name:
+    - kmod-lustre-client
+    - lustre-client
+    state: present
+  when: not skip_packages and ( ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat' )
+  vars:
+    ansible_python_interpreter: "{{ package_python_interpreter }}"
+
+- name: Add an apt signing key - ubuntu
+  apt_key:
+    url: https://fsx-lustre-client-repo-public-keys.s3.amazonaws.com/fsx-ubuntu-public-key.asc 
+    state: present
+  when: not skip_packages and ( ansible_distribution == 'Ubuntu' )
+
+- name: Add apt repo - ubuntu
+  apt_repository:
+    repo: deb https://fsx-lustre-client-repo.s3.amazonaws.com/ubuntu xenial main
+    filename: fsxlustreclientrepo
+    mode: '0644'
+    state: present
+  when: not skip_packages and ( ansible_distribution == 'Ubuntu' )
+
+- name: Install Lustre packages - ubuntu
+  package:
+    name:
+    - linux-aws
+    - lustre-client-modules-aws
+    state: present
+  when: not skip_packages and ( ansible_distribution == 'Ubuntu' )
+  vars:
+    ansible_python_interpreter: "{{ package_python_interpreter }}"
+
+- name: Reboot the server and wait for it to come back up. # This may not be necesary but a reboot resolved mounts to funciton properly
+  reboot:
+  when: reboot_after_lustre_install | bool
+
+- name: Rebooted
+  debug:
+    msg: "rebooted"
+  when: reboot_after_lustre_install | bool
