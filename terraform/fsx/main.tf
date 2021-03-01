@@ -110,7 +110,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "all incoming traffic"
   }
 
@@ -118,7 +118,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "tcp"
     from_port   = 988
     to_port     = 988
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -126,7 +126,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "tcp"
     from_port   = 1021
     to_port     = 1023
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -134,7 +134,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "icmp"
   }
 
@@ -142,7 +142,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "tcp"
     from_port   = 988
     to_port     = 988
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -150,7 +150,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "tcp"
     from_port   = 1021
     to_port     = 1023
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -158,7 +158,7 @@ resource "aws_security_group" "fsx_vpn" {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = [var.remote_subnet_cidr, var.vpn_cidr]
+    cidr_blocks = [var.onsite_private_subnet_cidr, var.vpn_cidr]
     description = "icmp"
   }
 

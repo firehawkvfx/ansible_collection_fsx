@@ -25,9 +25,9 @@ variable "public_subnets_cidr_blocks" {
     # default = []
 }
 
-variable "remote_subnet_cidr" {}
+variable "onsite_private_subnet_cidr" {}
 
-variable "remote_ip_cidr" {}
+variable "deployer_ip_cidr" {}
 
 variable "vpn_private_ip" {}
 
