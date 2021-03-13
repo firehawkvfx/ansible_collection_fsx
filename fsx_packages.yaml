@@ -4,7 +4,7 @@
   become: true
   vars_files:
     - /deployuser/ansible/group_vars/all/vars
-    - vars/main.yml
+    - "{{ playbook_dir }}/vars/main.yml"
 
   vars:
     variable_user: centos
