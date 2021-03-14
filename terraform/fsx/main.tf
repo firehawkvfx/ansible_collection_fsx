@@ -1,8 +1,8 @@
-# terraform {
-#   required_providers {
-#     aws = "~> 3.0"
-#   }
-# }
+terraform {
+  required_providers {
+    aws = "~> 3.8" # specifically because this fix can simplify work arounds - https://github.com/hashicorp/terraform-provider-aws/pull/14314
+  }
+}
 
 # TODO
 # install lustre on nodes, packages, fstab.
