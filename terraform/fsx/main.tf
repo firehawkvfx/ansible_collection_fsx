@@ -181,7 +181,7 @@ resource "null_resource" "init_fsx" {
       export SHOWCOMMANDS=true; set -x
       cd /deployuser
 
-      ansible-playbook -i "$TF_VAR_inventory" ansible/ansible_collections/firehawkvfx/fsx/fsx_init.yaml; exit_test # Ensure the bucket used to archive the fsx cluster exists
+      ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_init.yaml; exit_test # Ensure the bucket used to archive the fsx cluster exists
 EOT
   }
 }
@@ -272,7 +272,7 @@ output "fsx_private_ip" {
 
 locals {
   fsx_volumes_user_path = "/secrets/${ var.envtier }/fsx_volumes/fsx_volumes.yaml"
-  fsx_volumes_default_path = "/deployuser/ansible/ansible_collections/firehawkvfx/fsx/roles/fsx_volume_mounts/files/fsx_volumes.yaml"
+  fsx_volumes_default_path = "/deployuser/ansible/collections/ansible_collections/firehawkvfx/fsx/roles/fsx_volume_mounts/files/fsx_volumes.yaml"
 }
 
 resource "null_resource" "fsx_update_file_system" { # Ensure the cluster synchronises changes in the S3 bucket.  Changes on the cluster must be pushed back to the bucket.
@@ -333,10 +333,10 @@ resource "null_resource" "attach_local_mounts_after_start" {
         printf "\n$BLUE CONFIGURE REMOTE MOUNTS ON LOCAL NODES $NC\n"
         
         # unmount volumes from local site - same as when fsx is shutdown, we need to ensure no mounts are present since existing mounts pointed to an incorrect environment will be wrong
-        ansible-playbook -i "$TF_VAR_inventory" ansible/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml --extra-vars "variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key destroy=true variable_gather_facts=no" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
+        ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml --extra-vars "variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key destroy=true variable_gather_facts=no" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
         
         # now mount current volumes
-        ansible-playbook -i "$TF_VAR_inventory" ansible/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml -v -v --extra-vars "fsx_ip=${var.fsx_hostname} fsx_id=${local.id} variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
+        ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml -v -v --extra-vars "fsx_ip=${var.fsx_hostname} fsx_id=${local.id} variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
       fi
 EOT
   }
@@ -349,7 +349,7 @@ EOT
 
       if [[ $TF_VAR_remote_mounts_on_local == true ]] ; then
         # unmount volumes from local site when fsx is shutdown.
-        ansible-playbook -i "$TF_VAR_inventory" ansible/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml --extra-vars "variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key destroy=true variable_gather_facts=no" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
+        ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml --extra-vars "variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key destroy=true variable_gather_facts=no" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
       fi
 EOT
   }
