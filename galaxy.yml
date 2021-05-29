@@ -1,4 +1,5 @@
 ### REQUIRED
+
 # The namespace of the collection. This can be a company/brand/organization or product namespace under which all
 # content lives. May only contain alphanumeric lowercase characters and underscores. Namespaces cannot start with
 # underscores or numbers and cannot contain consecutive underscores
@@ -16,10 +17,11 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- your name <example@domain.com>
+- Andrew Graham <andrew@firehawkvfx.com>
 
 
 ### OPTIONAL but strongly recommended
+
 # A short summary description of the collection
 description: your collection description
 
@@ -42,21 +44,14 @@ tags: []
 # range specifiers can be set and are separated by ','
 dependencies: {}
 
-# The URL of the originating SCM repository
-repository: http://example.com/repository
+# # The URL of the originating SCM repository
+# repository: http://example.com/repository
 
-# The URL to any online docs
-documentation: http://docs.example.com
+# # The URL to any online docs
+# documentation: http://docs.example.com
 
-# The URL to the homepage of the collection/project
-homepage: http://example.com
+# # The URL to the homepage of the collection/project
+# homepage: http://example.com
 
-# The URL to the collection issue tracker
-issues: http://example.com/issue/tracker
-
-# A list of file glob-like patterns used to filter any files or directories that should not be included in the build
-# artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This
-# uses 'fnmatch' to match the files or directories. Some directories and files like 'galaxy.yml', '*.pyc', '*.retry',
-# and '.git' are always filtered
-build_ignore: []
-
+# # The URL to the collection issue tracker
+# issues: http://example.com/issue/tracker
