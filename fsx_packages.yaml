@@ -3,7 +3,6 @@
   gather_facts: "{{ variable_gather_facts | default('false') }}"
   become: true
   vars_files:
-    - /deployuser/ansible/group_vars/all/vars
     - "{{ playbook_dir }}/vars/main.yml"
 
   vars:
