@@ -188,7 +188,7 @@ EOT
 
 locals {
   fsx_enabled = ( !var.sleep && var.fsx_storage ) ? 1 : 0
-  fsx_import_path = "s3://${var.fsx_bucket_prefix}.${var.bucket_extension}"
+  fsx_import_path = "s3://${var.rendering_bucket_prefix}.${var.bucket_extension}"
 }
 
 resource "aws_fsx_lustre_file_system" "fsx_storage" {
