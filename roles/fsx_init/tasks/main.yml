@@ -11,4 +11,4 @@
 
 - name: ensure bucket exists
   import_role:
-    name: firehawkvfx.core.s3_bucket
+    name: firehawkvfx.ansible_collection_core.s3_bucket
