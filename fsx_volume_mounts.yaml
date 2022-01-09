@@ -17,6 +17,6 @@
     pcoip: false
 
   roles:
-  - role: firehawkvfx.ansible_collection_fsx.fsx_volume_mounts
+  - role: firehawkvfx.fsx.fsx_volume_mounts
   - role: firehawkvfx.onsite_nfs.onsite_nfs_share
     when: localnas1_private_ip != 'none'

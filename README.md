@@ -1,3 +1,3 @@
-# Ansible Collection - firehawkvfx.ansible_collection_fsx
+# Ansible Collection - firehawkvfx.fsx
 
 Documentation for the collection.
