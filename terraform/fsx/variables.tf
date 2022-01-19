@@ -27,8 +27,6 @@ variable "public_subnets_cidr_blocks" {
 
 variable "onsite_private_subnet_cidr" {}
 
-variable "deployer_ip_cidr" {}
-
 variable "vpn_private_ip" {}
 
 variable "sleep" {}
