@@ -18,7 +18,7 @@ terraform {
 locals {
   name = "fsx_vpc_pipeid${lookup(var.common_tags, "pipelineid", "0")}"
   extra_tags = {
-    role = "fsx"
+    role  = "fsx"
     route = "private"
   }
 }
@@ -29,13 +29,13 @@ resource "aws_security_group" "fsx_vpc" {
   name        = "fsx_vpc_pipeid${lookup(var.common_tags, "pipelineid", "0")}"
   vpc_id      = var.vpc_id
   description = "FSx security group"
-  tags = merge(map("Name", format("%s", local.name)), var.common_tags, local.extra_tags)
+  tags        = merge(tomap({"Name": format("%s", local.name)}), var.common_tags, local.extra_tags)
 
   ingress {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "all incoming traffic"
   }
 
@@ -43,7 +43,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "tcp"
     from_port   = 988
     to_port     = 988
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -51,7 +51,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "udp"
     from_port   = 1021
     to_port     = 1023
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -59,7 +59,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "icmp"
   }
 
@@ -67,7 +67,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "tcp"
     from_port   = 988
     to_port     = 988
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -75,7 +75,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "udp"
     from_port   = 1021
     to_port     = 1023
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "Allows Lustre traffic between Amazon FSx for Lustre file servers"
   }
 
@@ -83,7 +83,7 @@ resource "aws_security_group" "fsx_vpc" {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = [ var.vpc_cidr, var.public_subnets_cidr_blocks[0] ]
+    cidr_blocks = [var.vpc_cidr, var.public_subnets_cidr_blocks[0]]
     description = "icmp"
   }
 
@@ -97,14 +97,14 @@ resource "aws_security_group" "fsx_vpc" {
 }
 
 resource "aws_security_group" "fsx_vpn" {
-  count = local.fsx_enabled
+  count      = local.fsx_enabled
   depends_on = [var.vpn_private_ip]
 
   name        = "fsx_vpn_pipeid${lookup(var.common_tags, "pipelineid", "0")}"
   vpc_id      = var.vpc_id
   description = "FSX VPN security group for remote subnet"
 
-  tags = merge(map("Name", format("%s", local.name)), var.common_tags, local.extra_tags)
+  tags = merge(tomap({"Name": format("%s", local.name)}), var.common_tags, local.extra_tags)
 
   ingress {
     protocol    = "-1"
@@ -173,10 +173,10 @@ resource "aws_security_group" "fsx_vpn" {
 
 resource "null_resource" "init_fsx" {
   count = local.fsx_enabled
-  
+
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
+    command     = <<EOT
       . /deployuser/scripts/exit_test.sh
       export SHOWCOMMANDS=true; set -x
       cd /deployuser
@@ -187,26 +187,26 @@ EOT
 }
 
 locals {
-  fsx_enabled = ( !var.sleep && var.fsx_storage ) ? 1 : 0
+  fsx_enabled     = (!var.sleep && var.fsx_storage) ? 1 : 0
   fsx_import_path = "s3://${var.rendering_bucket_prefix}.${var.bucket_extension}"
 }
 
 resource "aws_fsx_lustre_file_system" "fsx_storage" {
-  count      = ( !var.sleep && ( local.fsx_enabled == 1 ) ) ? 1 : 0
-  depends_on = [ null_resource.init_fsx ]
-  
-  import_path      = local.fsx_import_path
-  export_path      = local.fsx_import_path
-  storage_capacity = var.fsx_storage_capacity
-  subnet_ids       = [ element( flatten( concat( var.subnet_ids, list("") ) ), 0 ) ]
-  security_group_ids = concat( aws_security_group.fsx_vpc.*.id, aws_security_group.fsx_vpn.*.id, list("") )
-  deployment_type  = "SCRATCH_2" # aws provider v3.0 only
+  count      = (!var.sleep && (local.fsx_enabled == 1)) ? 1 : 0
+  depends_on = [null_resource.init_fsx]
+
+  import_path        = local.fsx_import_path
+  export_path        = local.fsx_import_path
+  storage_capacity   = var.fsx_storage_capacity
+  subnet_ids         = [element(flatten(concat(var.subnet_ids, list(""))), 0)]
+  security_group_ids = concat(aws_security_group.fsx_vpc.*.id, aws_security_group.fsx_vpn.*.id, list(""))
+  deployment_type    = "SCRATCH_2" # aws provider v3.0 only
 
   tags = var.common_tags
 }
 
 locals {
-  id = element( concat( aws_fsx_lustre_file_system.fsx_storage.*.id, list("") ), 0)
+  id = element(concat(aws_fsx_lustre_file_system.fsx_storage.*.id, list("")), 0)
 }
 
 output "id" {
@@ -223,17 +223,17 @@ output "network_interface_ids" {
 # Terraform provider API does not list the primary interface in the correct order to obtain it.  so we use a custom data source to aquire the primary interface
 
 data "external" "primary_interface_id" { # Why cant we use triggers here?
-  count = local.fsx_enabled
+  count   = local.fsx_enabled
   program = ["/bin/bash", "${path.module}/primary_interface.sh"]
-  
+
   # Arbitrary map from strings to strings, passed to the external program as the data query.
-  query = { 
+  query = {
     id = "${local.id}"
   }
 }
 
 locals {
-  primary_interface = lookup( element( concat( data.external.primary_interface_id.*.result, list( map( "primary_interface", "" ) ) ), 0), "primary_interface", "" )
+  primary_interface = lookup(element(concat(data.external.primary_interface_id.*.result, list(tomap({ "primary_interface" : "" }))), 0), "primary_interface", "")
 }
 
 output "primary_interface" {
@@ -242,11 +242,11 @@ output "primary_interface" {
 
 data "aws_network_interface" "fsx_primary_interface" {
   count = local.fsx_enabled
-  id = local.primary_interface
+  id    = local.primary_interface
 }
 
 locals {
-  fsx_private_ip = element( concat( data.aws_network_interface.fsx_primary_interface.*.private_ip, list("")), 0 )
+  fsx_private_ip = element(concat(data.aws_network_interface.fsx_primary_interface.*.private_ip, list("")), 0)
 }
 
 resource "aws_route53_record" "fsx_record" {
@@ -271,26 +271,26 @@ output "fsx_private_ip" {
 ### attach mounts onsite if fsx is available
 
 locals {
-  fsx_volumes_user_path = "/secrets/${ var.envtier }/fsx_volumes/fsx_volumes.yaml"
+  fsx_volumes_user_path    = "/secrets/${var.envtier}/fsx_volumes/fsx_volumes.yaml"
   fsx_volumes_default_path = "/deployuser/ansible/collections/ansible_collections/firehawkvfx/fsx/roles/fsx_volume_mounts/files/fsx_volumes.yaml"
 }
 
 resource "null_resource" "fsx_update_file_system" { # Ensure the cluster synchronises changes in the S3 bucket.  Changes on the cluster must be pushed back to the bucket.
-  count      = ( !var.sleep && ( local.fsx_enabled == 1 ) ) ? 1 : 0
+  count = (!var.sleep && (local.fsx_enabled == 1)) ? 1 : 0
   depends_on = [
     aws_fsx_lustre_file_system.fsx_storage,
     data.external.primary_interface_id,
     data.aws_network_interface.fsx_primary_interface
   ]
   triggers = {
-    fsx_private_ip = local.fsx_private_ip
-    ebs_template_sha1    = "${sha1( file( fileexists( local.fsx_volumes_user_path ) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path ))}" # file contents can trigger volume attachment 
-    fsx_enabled = local.fsx_enabled
-    sleep = var.sleep
+    fsx_private_ip    = local.fsx_private_ip
+    ebs_template_sha1 = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment 
+    fsx_enabled       = local.fsx_enabled
+    sleep             = var.sleep
   }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
+    command     = <<EOT
       . /deployuser/scripts/exit_test.sh
       export SHOWCOMMANDS=true; set -x
 
@@ -300,7 +300,7 @@ EOT
 }
 
 resource "null_resource" "attach_local_mounts_after_start" {
-  count      = ( !var.sleep && ( local.fsx_enabled == 1 ) ) ? 1 : 0
+  count = (!var.sleep && (local.fsx_enabled == 1)) ? 1 : 0
   depends_on = [
     aws_fsx_lustre_file_system.fsx_storage,
     data.external.primary_interface_id,
@@ -308,16 +308,16 @@ resource "null_resource" "attach_local_mounts_after_start" {
     aws_route53_record.fsx_record
   ]
   triggers = {
-    fsx_private_ip = local.fsx_private_ip
-    fsx_record = "${join(",", aws_route53_record.fsx_record.*.id)}"
+    fsx_private_ip         = local.fsx_private_ip
+    fsx_record             = "${join(",", aws_route53_record.fsx_record.*.id)}"
     remote_mounts_on_local = var.remote_mounts_on_local
-    ebs_template_sha1    = "${sha1( file( fileexists( local.fsx_volumes_user_path ) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path ))}" # file contents can trigger volume attachment 
-    fsx_enabled = local.fsx_enabled
-    sleep = var.sleep
+    ebs_template_sha1      = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment 
+    fsx_enabled            = local.fsx_enabled
+    sleep                  = var.sleep
   }
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
+    command     = <<EOT
       . /deployuser/scripts/exit_test.sh
       export SHOWCOMMANDS=true; set -x
 

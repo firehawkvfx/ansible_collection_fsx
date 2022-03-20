@@ -1,1 +1,3 @@
 **/.DS_Store
+terraform/fsx/.terraform
+terraform/fsx/.terraform.lock.hcl
