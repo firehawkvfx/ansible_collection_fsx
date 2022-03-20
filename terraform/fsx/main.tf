@@ -198,15 +198,15 @@ resource "aws_fsx_lustre_file_system" "fsx_storage" {
   import_path        = local.fsx_import_path
   export_path        = local.fsx_import_path
   storage_capacity   = var.fsx_storage_capacity
-  subnet_ids         = [element(flatten(concat(var.subnet_ids, list(""))), 0)]
-  security_group_ids = concat(aws_security_group.fsx_vpc.*.id, aws_security_group.fsx_vpn.*.id, list(""))
+  subnet_ids         = [element(flatten(concat(var.subnet_ids, tolist([""]))), 0)]
+  security_group_ids = concat(aws_security_group.fsx_vpc.*.id, aws_security_group.fsx_vpn.*.id, tolist([""]))
   deployment_type    = "SCRATCH_2" # aws provider v3.0 only
 
   tags = var.common_tags
 }
 
 locals {
-  id = element(concat(aws_fsx_lustre_file_system.fsx_storage.*.id, list("")), 0)
+  id = element(concat(aws_fsx_lustre_file_system.fsx_storage.*.id, tolist([""])), 0)
 }
 
 output "id" {
@@ -233,7 +233,8 @@ data "external" "primary_interface_id" { # Why cant we use triggers here?
 }
 
 locals {
-  primary_interface = lookup(element(concat(data.external.primary_interface_id.*.result, list(tomap({ "primary_interface" : "" }))), 0), "primary_interface", "")
+  primary_interface = lookup(
+    element( concat( data.external.primary_interface_id.*.result, tolist( [ tomap( { "primary_interface" : "" } ) ] ) ), 0 ),"primary_interface", "")
 }
 
 output "primary_interface" {
@@ -246,7 +247,7 @@ data "aws_network_interface" "fsx_primary_interface" {
 }
 
 locals {
-  fsx_private_ip = element(concat(data.aws_network_interface.fsx_primary_interface.*.private_ip, list("")), 0)
+  fsx_private_ip = element(concat(data.aws_network_interface.fsx_primary_interface.*.private_ip, tolist([""])), 0)
 }
 
 resource "aws_route53_record" "fsx_record" {
