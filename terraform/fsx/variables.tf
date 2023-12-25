@@ -2,8 +2,7 @@ variable "fsx_storage" {}
 
 variable "fsx_storage_capacity" {}
 
-variable "rendering_bucket_prefix" {}
-variable "bucket_extension" {}
+variable "rendering_bucket" {}
 
 variable "subnet_ids" {
     default = []

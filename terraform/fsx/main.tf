@@ -188,7 +188,7 @@ EOT
 
 locals {
   fsx_enabled     = (!var.sleep && var.fsx_storage) ? 1 : 0
-  fsx_import_path = "s3://${var.rendering_bucket_prefix}.${var.bucket_extension}"
+  fsx_import_path = "s3://${var.rendering_bucket}"
 }
 
 resource "aws_fsx_lustre_file_system" "fsx_storage" {
@@ -285,7 +285,7 @@ resource "null_resource" "fsx_update_file_system" { # Ensure the cluster synchro
   ]
   triggers = {
     fsx_private_ip    = local.fsx_private_ip
-    ebs_template_sha1 = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment 
+    ebs_template_sha1 = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment
     fsx_enabled       = local.fsx_enabled
     sleep             = var.sleep
   }
@@ -312,7 +312,7 @@ resource "null_resource" "attach_local_mounts_after_start" {
     fsx_private_ip         = local.fsx_private_ip
     fsx_record             = "${join(",", aws_route53_record.fsx_record.*.id)}"
     remote_mounts_on_local = var.remote_mounts_on_local
-    ebs_template_sha1      = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment 
+    ebs_template_sha1      = "${sha1(file(fileexists(local.fsx_volumes_user_path) ? local.fsx_volumes_user_path : local.fsx_volumes_default_path))}" # file contents can trigger volume attachment
     fsx_enabled            = local.fsx_enabled
     sleep                  = var.sleep
   }
@@ -328,14 +328,14 @@ resource "null_resource" "attach_local_mounts_after_start" {
         printf "\n$BLUE CONFIGURE REMOTE ROUTES ON LOCAL NODES $NC\n"
         ansible-playbook -i "$TF_VAR_inventory" ansible/node-centos-routes.yaml -v -v --extra-vars "variable_host=workstation1 variable_user=deployuser hostname=workstation1 ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key ethernet_interface=$TF_VAR_workstation_ethernet_interface"; exit_test
       fi
-      
+
       # mount volumes to local site when fsx is started
       if [[ $TF_VAR_remote_mounts_on_local == true ]] ; then
         printf "\n$BLUE CONFIGURE REMOTE MOUNTS ON LOCAL NODES $NC\n"
-        
+
         # unmount volumes from local site - same as when fsx is shutdown, we need to ensure no mounts are present since existing mounts pointed to an incorrect environment will be wrong
         ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml --extra-vars "variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key destroy=true variable_gather_facts=no" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
-        
+
         # now mount current volumes
         ansible-playbook -i "$TF_VAR_inventory" ansible/collections/ansible_collections/firehawkvfx/fsx/fsx_volume_mounts.yaml -v -v --extra-vars "fsx_ip=${var.fsx_hostname} fsx_id=${local.id} variable_host=workstation1 variable_user=deployuser ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key" --skip-tags 'cloud_install local_install_onsite_mounts' --tags 'local_install'; exit_test
       fi
